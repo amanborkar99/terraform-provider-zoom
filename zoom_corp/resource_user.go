@@ -2,6 +2,7 @@ package zoom_corp
 
 import (
 	"context"
+	"fmt"
 	//"time"
 
 	xl "terraform-provider-zoom/Client"
@@ -35,6 +36,10 @@ func resourceUser() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"status": &schema.Schema{
+				Type: schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -43,7 +48,7 @@ func resourceUser() *schema.Resource {
 func resourceUserCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	//var diags diag.Diagnostics
 	c := m.(*xl.Client)
-
+    fmt.Printf("USER CREATED\n")
 	t := sl.Uz{
 		Email:      d.Get("email").(string),
 		First_name: d.Get("first_name").(string),
@@ -72,26 +77,30 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	c := m.(*xl.Client)
 
 	id := d.Id()
-
-	user, err := c.GetUser(id)
+    fmt.Println("USER READ")
+	_, err := c.GetUser(id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+        Email:=      d.Get("email").(string)
+		First_name:= d.Get("first_name").(string)
+		Last_name:=  d.Get("last_name").(string)
+		Type:=       d.Get("type").(int)
+	if err:= d.Set("email", Email); err!= nil{
+		return diag.FromErr(err)
+	}
+	if err:= d.Set("first_name", First_name); err != nil{
+		return diag.FromErr(err)
+	}
+	if err:= d.Set("last_name", Last_name); err != nil{
+		return diag.FromErr(err)
+	}
+	if err:= d.Set("type", Type); err != nil{
+		return diag.FromErr(err)
+	}
+	
 
-	if err:= d.Set("email", user.Email); err!= nil{
-		return diag.FromErr(err)
-	}
-	if err:= d.Set("first_name", user.First_name); err != nil{
-		return diag.FromErr(err)
-	}
-	if err:= d.Set("last_name", user.Last_name); err != nil{
-		return diag.FromErr(err)
-	}
-	if err:= d.Set("type", user.Type); err != nil{
-		return diag.FromErr(err)
-	}
-
-	d.SetId(user.Email)
+	d.SetId(d.Id())
 
 	return diags
 
@@ -100,7 +109,13 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	c := m.(*xl.Client)
-
+	st := d.Get("status").(string)
+    fmt.Println("USER UPDATED")
+	
+	if st == "pending"{
+	   return 	diag.Errorf("User is not active")
+	}
+	
 	t := sl.Uz{
 		Email:      d.Get("email").(string),
 		First_name: d.Get("first_name").(string),
@@ -135,8 +150,10 @@ func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface
 
 	c := m.(*xl.Client)
 	id := d.Id()
+    fmt.Println("DELETE WORKING")
+	st := d.Get("status").(string)
 
-	err := c.DeleteUser(id)
+	err := c.DeleteUser(id, st)
 	if err != nil{
 		return diag.FromErr(err)
 	}

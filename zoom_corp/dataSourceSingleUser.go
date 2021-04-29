@@ -2,8 +2,8 @@ package zoom_corp
 
 import (
 	"context"
-	"strconv"
-	"time"
+	// "strconv"
+	// "time"
 
 	t "terraform-provider-zoom/Client"
 	//s "terraform-provider-zoom/Server"
@@ -60,7 +60,7 @@ func dataSourceSingleUserRead(ctx context.Context, d *schema.ResourceData, m int
 	d.Set("type",user.Type)
 	
 
-    d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+    d.SetId(id)
 	
 
 	return diags

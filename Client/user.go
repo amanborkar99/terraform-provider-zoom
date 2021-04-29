@@ -2,12 +2,12 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
-	"fmt"
+	"time"
 
-	
-sl "terraform-provider-zoom/Server"
+	sl "terraform-provider-zoom/Server"
 )
 
 func (c *Client) CreateUser(user sl.Create) (*sl.Resp, error) {
@@ -75,16 +75,25 @@ func (c *Client) UpdateUser(id string, user sl.Uz) (error){
    return nil
 }
 
-func (c *Client) DeleteUser(id string) (error){
-	req, err := http.NewRequest("DELETE","https://api.zoom.us/v2/users/"+id+"?action=delete", nil) 
+func (c *Client) DeleteUser(id string, st string) (error){
+   var req *http.Request
+   var err error 
+	if st == "pending"{
+		req, err = http.NewRequest("DELETE","https://api.zoom.us/v2/users/"+id+"?action=disassociate", nil)
+	}else{
+		req, err = http.NewRequest("DELETE","https://api.zoom.us/v2/users/"+id+"?action=delete", nil)
+	}
+	//req, err := http.NewRequest("DELETE","https://api.zoom.us/v2/users/"+id+"?action=", nil) 
     if err != nil{
 		return err
 	}
-	body, err := c.doRequestforDelete(req)
-	if err != nil{
-		return nil
-	}
-	fmt.Print(string(body))
+ client := &http.Client{Timeout: 10 * time.Second}
+ req.Header.Set("Authorization", c.Token)
+ re, err := client.Do(req)
+ fmt.Println(re.StatusCode)
+ if err != nil {
+	 return fmt.Errorf("status: %v", err)
+ }
 	return nil
 
 }

@@ -102,6 +102,7 @@ func (c *Client) doRequestforDelete(req *http.Request) ([]byte, error){
 	if err != nil{
 		return nil, err
 	}
+	fmt.Printf("status = %v", res.StatusCode)
     defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil{
@@ -109,7 +110,7 @@ func (c *Client) doRequestforDelete(req *http.Request) ([]byte, error){
 	}
 	
 	if res.StatusCode != 204 {
-		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, body)
+		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, string(body))
 	}
 	
 	return body, err

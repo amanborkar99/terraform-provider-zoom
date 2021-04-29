@@ -2,7 +2,7 @@ package zoom_corp
 
 import (
 	"context"
-	//"os"
+	"os"
 	//e "errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -28,8 +28,8 @@ func Provider() *schema.Provider {
 			// },
 			"token": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
-				//DefaultFunc: schema.EnvDefaultFunc("TOKEN_ZOOM", nil),
+				Required: true,
+				DefaultFunc: schema.EnvDefaultFunc("token_zoom", nil),
 
 			},
 		},
@@ -52,7 +52,7 @@ func providerConfig(ctx context.Context, d *schema.ResourceData) (interface{}, d
 	us_token := d.Get("token").(string)
 
 	c, err := xl.NewClient(us_token)
-	//os.Setenv("ttk", us_token)
+	os.Setenv("token_zoom", us_token)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
